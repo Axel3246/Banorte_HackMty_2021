@@ -1,0 +1,100 @@
+import pandas as pd # Librería pandas
+datos_INPC = pd.read_excel('ca56_2018.xlsx') # indicamos el nombre de nuestro archivo a ser leído
+datos_INPC.head() #Se pone el encabezado para ver cuáles fueron los atributos cargados.
+datos_INPC.describe()
+datos_seleccionados = datos_INPC.iloc[:,1:15] # : selecciona todas las filas y :,1:16 seleccion columnas de la 1 la 16
+datos_seleccionados # desplegamos el dataframe
+datos_seleccionados.info()
+datos_seleccionados.isnull().values.any() # buscamos valores nulos y obtenemos True o False dependiendo si hay o no
+dataset = datos_seleccionados.dropna() # creamos un nuevo dataframe descartando los valores nulos o vacíos de nuestro dataframe datos_seleccionados
+dataset.isnull().sum() # validamos que no tenemos valores nulos en ninguna columna, todos deben dar cero
+dataset.columns # vemos los nombres de nuestras columnas para asignarlos a las variables
+X = dataset[['Alimentos, bebidas y tabaco', 'Mercancías no Alimenticias', 'Vivienda', 'Educación', 'Otros Servicios', 'Frutas y Verduras', 'Pecuarios', 'Energéticos']].values # variables independientes
+y = dataset['INPC'].values # variable dependiente
+
+from sklearn.model_selection import train_test_split # importamos la herramienta para dividir los datos de SciKit-Learn
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0) # asignación de los datos 80% para entrenamiento y 20% para prueba
+from sklearn.linear_model import LinearRegression # importamos la clase de regresión lineal
+modelo_regresion = LinearRegression() # modelo de regresión
+modelo_regresion.fit(X_train, y_train) # aprendizaje automático con base en nuestros datos
+x_columns = ['Alimentos, bebidas y tabaco', 'Mercancías no Alimenticias', 'Vivienda', 'Educación', 'Otros Servicios', 'Frutas y Verduras', 'Pecuarios', 'Energéticos']# Aquí se estan seleccionando los datos base, que se mencionaba arriba.
+coeff_df = pd.DataFrame(modelo_regresion.coef_, x_columns, columns=['Coeficientes'])
+coeff_df # despliega los coeficientes y sus valores; por cada unidad del coeficiente, su impacto en las calorías será igual a su valor
+
+y_pred = modelo_regresion.predict(X_test) # probamos nuestro modelo con los valores de prueba
+validacion = pd.DataFrame({'Actual': y_test, 'Predicción': y_pred, 'Diferencia': y_test-y_pred }) # creamos un dataframe con los valores actuales y los de predicción
+muestra_validacion = validacion.head(100) # elegimos una muestra con 100 valores
+muestra_validacion # desplegamos esos 100 valores
+validacion["Diferencia"].describe()
+from sklearn.metrics import r2_score # importamos la métrica R cuadrada (coeficiente de determinación)
+r2_score(y_test, y_pred) # ingresamos nuestros valores reales y calculados para obtener la R2
+import matplotlib.pyplot as plt # importamos la librería que nos permitirá graficar
+muestra_validacion.plot.bar(rot=0)  # creamos un gráfico de barras con el dataframe que contiene nuestros datos actuales y de predicción
+plt.title("INPC 1Q ENE-2000, 2Q DIC-2020") # indicamos el título del gráfico
+plt.xlabel("Muestra quincenal") # indicamos la etiqueta del eje de las x
+plt.ylabel("Valor INPC") # indicamos la etiqueta del eje de las y
+plt.show() # desplegamos el gráfico
+
+datos_INPC2 = pd.read_excel('Pronósticos.xlsx') # indicamos el nombre de nuestro archivo a ser leído
+datos_seleccionados2 = datos_INPC2.iloc[:,1:15] # : selecciona todas las filas y columnas
+datos_seleccionados2 # desplegamos el dataframe
+datos_seleccionados2.info()
+datos_seleccionados2.isnull().values.any() # buscamos valores nulos y obtenemos True o False dependiendo si hay o no
+dataset2 = datos_seleccionados2.dropna() # creamos un nuevo dataframe descartando los valores nulos o vacíos de nuestro dataframe datos_seleccionados
+dataset2.isnull().sum() # validamos que no tenemos valores nulos en ninguna columna, todos deben dar cero
+dataset2.columns # vemos los nombres de nuestras columnas para asignarlos a las variables
+X2 = dataset2[['Alimentos, bebidas y tabaco', 'Mercancías no Alimenticias', 'Vivienda', 'Educación', 'Otros Servicios', 'Frutas y Verduras', 'Pecuarios', 'Energéticos']].values # variables independientes
+y2 = dataset2['INPC'].values # variable dependiente
+y_pred2 = modelo_regresion.predict(X2)
+
+validacion2 = pd.DataFrame({'Actual': y2, 'Predicción': y_pred2, 'Diferencia': y2-y_pred2 }) # creamos un dataframe con los valores actuales y los de predicción
+muestra_validacion2 = validacion2.head(15) # elegimos una muestra con 15 valores 
+muestra_validacion2 # desplegamos esos 15 valores
+from sklearn.metrics import r2_score # importamos la métrica R cuadrada (coeficiente de determinación)
+r2_score(y2, y_pred2) # ingresamos nuestros valores reales y calculados para obterner la R2
+import matplotlib.pyplot as plt # importamos la librería que nos permitirá graficar
+muestra_validacion2.plot.bar(rot=0)  # creamos un gráfico de barras con el dataframe que contiene nuestros datos actuales y de predicción
+plt.title("INPC 1Q ENE-2021, 1Q AGO-2021") # indicamos el título del gráfico
+plt.xlabel("Muestras quincenales") # indicamos la etiqueta del eje de las x
+plt.ylabel("Valor INPC") # indicamos la etiqueta del eje de las y
+plt.show() # desplegamos el gráfico
+
+X4 = dataset2[['Alimentos, bebidas y tabaco', 'Mercancías no Alimenticias', 'Vivienda', 'Educación', 'Otros Servicios', 'Control', 'Control', 'Control','Control']].values # variables independientes
+y4 = dataset2['Subyacente'].values # variable dependiente
+y_pred4 = modelo_regresion.predict(X4)
+validacion4 = pd.DataFrame({'Actual': y4, 'Predicción': y_pred4, 'Diferencia': y4-y_pred4}) # creamos un dataframe con los valores actuales y los de predicción
+muestra_validacion4 = validacion4.head(15) # elegimos una muestra con 25 valores 
+muestra_validacion4 # desplegamos esos 25 valores 
+validacion4["Diferencia"].describe()
+import matplotlib.pyplot as plt # importamos la librería que nos permitirá graficar
+muestra_validacion4.plot.bar(rot=0)  # creamos un gráfico de barras con el dataframe que contiene nuestros datos actuales y de predicción
+plt.title("SUBYACENTE 1Q ENE-2021, 1Q AGO-2021") # indicamos el título del gráfico
+plt.xlabel("Muestras quincenales") # indicamos la etiqueta del eje de las x, los alimentos
+plt.ylabel("Valor Subyacente") # indicamos la etiqueta del eje de las y, la cantidad de calorías
+plt.show() # desplegamos el gráfico
+
+import pandas as pd # Librería pandas
+datos_INPC3 = pd.read_excel('ca56_2018.xlsx') # indicamos el nombre de nuestro archivo a ser leído
+datos_seleccionados3 = datos_INPC3.iloc[:,2:15]
+datos_seleccionados3
+datos_seleccionados3.info()
+datos_seleccionados3.isnull().values.any() # buscamos valores nulos y obtenemos True o False dependiendo si hay o no
+dataset3 = datos_seleccionados3.dropna() # creamos un nuevo dataframe descartando los valores nulos o vacíos de nuestro dataframe datos_seleccionados
+dataset3.isnull().sum() # validamos que no tenemos valores nulos en ninguna columna, todos deben dar cero
+dataset3.columns # vemos los nombres de nuestras columnas para asignarlos a las variables
+X3 = dataset3[['Alimentos, bebidas y tabaco', 'Mercancías no Alimenticias', 'Vivienda', 'Educación', 'Otros Servicios','Control','Control','Control','Control']].values # variables independientes
+y3 = dataset3['Subyacente'].values # variable dependiente
+from sklearn.model_selection import train_test_split # importamos la herramienta para dividir los datos de SciKit-Learn
+X_train3, X_test3, y_train3, y_test3 = train_test_split(X3, y3, test_size=0.2, random_state=0) # asignación de los datos 80% para entrenamiento y 20% para prueba
+
+y_pred3 = modelo_regresion.predict(X_test3)
+validacion3 = pd.DataFrame({'Actual': y_test3, 'Predicción': y_pred3, 'Diferencia': y_test3-y_pred3 }) # creamos un dataframe con los valores actuales y los de predicción
+muestra_validacion3 = validacion3.head(100) # elegimos una muestra con 25 valores 
+muestra_validacion3 # desplegamos esos 25 valores 
+validacion3["Diferencia"].describe()
+import matplotlib.pyplot as plt # importamos la librería que nos permitirá graficar
+muestra_validacion3.plot.bar(rot=0)  # creamos un gráfico de barras con el dataframe que contiene nuestros datos actuales y de predicción
+plt.title("SUBYACENTE 1Q ENE-2000, 2Q DIC-2020") # indicamos el título del gráfico
+plt.xlabel("Muestras quincenales") # indicamos la etiqueta del eje de las x, los alimentos
+plt.ylabel("Valor Subyacente") # indicamos la etiqueta del eje de las y, la cantidad de calorías
+plt.show() # desplegamos el gráfico
